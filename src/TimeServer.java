@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
@@ -33,15 +35,18 @@ public class TimeServer extends JFrame {   // Im setting it up for Java Swing GU
             System.out.println("Server online at time " + new Date() + '\n');
             jta.append("Server online at time " + new Date() + '\n');
 
-            Socket socket = serverSocket.accept();  // Building the socket and allowing connection from client
 
-            DataOutputStream dataOutputToClient = new DataOutputStream(socket.getOutputStream());
+
+
 
 
 
 
             while (true) {
-                dataOutputToClient.writeChars(new Date().toString()); // Sending the date back to client
+                Socket socket = serverSocket.accept();  // Building the socket and allowing connection from client
+                ObjectOutputStream dateOutputToClient = new ObjectOutputStream(socket.getOutputStream());
+
+                dateOutputToClient.writeObject("up yours" + new Date()); // Sending the date back to client
                 System.out.println(
                         "Time requested from client at time " + new Date() + '\n'
                 );
@@ -49,6 +54,7 @@ public class TimeServer extends JFrame {   // Im setting it up for Java Swing GU
                 jta.append(
                         "Time requested from client at time " + new Date() + '\n'
                 );
+                socket.close();
             }
         } catch (IOException e) {
             System.out.println("Dude... it blew up!!!");
