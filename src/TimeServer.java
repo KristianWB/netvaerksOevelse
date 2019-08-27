@@ -59,6 +59,7 @@ public class TimeServer extends JFrame {   // Im setting it up for Java Swing GU
 
                 // Start the new thread
                 new Thread(task).start();
+                System.out.println("check_2");
 
                 // Increment clientNo
                 clientNo++;
@@ -79,23 +80,29 @@ public class TimeServer extends JFrame {   // Im setting it up for Java Swing GU
         /** Construct a thread */
         public HandleAClient(Socket socket) {
             this.socket = socket;
+            System.out.println("check_1");
         }
 
         @Override /** Run a thread */
         public void run() {
             try {
+                System.out.println("Check_3");
                 // Create data input and output streams
                 DataInputStream dataInputFromClient = new DataInputStream(socket.getInputStream());
                 DataOutputStream dataOutputToClient = new DataOutputStream(socket.getOutputStream());
+                System.out.println("Check_3_1");
 
-                ObjectInputStream objectinputFromClient = new ObjectInputStream(socket.getInputStream());
+                // ObjectInputStream objectInputFromClient = new ObjectInputStream(socket.getInputStream());
+                System.out.println("Check_3_2");
                 ObjectOutputStream objectOutputToClient = new ObjectOutputStream(socket.getOutputStream());
+                System.out.println("Check_3_3");
 
                 // Continuously serve the client
                 while (true) {
+                    System.out.println("Check_4");
                     // Inserting the logic machinery the server has to perform on the client requests
 
-                    objectOutputToClient.writeObject("up yours " + new Date()); // Sending the date back to client
+                    objectOutputToClient.writeObject("" + new Date()); // Sending the date back to client
                     System.out.println(
                             "Time requested from client at time " + new Date() + '\n'
                     );
