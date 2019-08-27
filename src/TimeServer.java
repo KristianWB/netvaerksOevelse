@@ -1,9 +1,8 @@
 import javax.swing.*;
+import javax.xml.crypto.Data;
 import java.awt.*;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
@@ -31,34 +30,84 @@ public class TimeServer extends JFrame {   // Im setting it up for Java Swing GU
 
         try {
             ServerSocket serverSocket = new ServerSocket(1);    // Building the ServerSocket object for connection
-
             System.out.println("Server online at time " + new Date() + '\n');
             jta.append("Server online at time " + new Date() + '\n');
 
-
-
-
-
-
-
+            // Numbering the client
+            int clientNo = 1;
 
             while (true) {
                 Socket socket = serverSocket.accept();  // Building the socket and allowing connection from client
-                ObjectOutputStream dateOutputToClient = new ObjectOutputStream(socket.getOutputStream());
 
-                dateOutputToClient.writeObject("up yours" + new Date()); // Sending the date back to client
-                System.out.println(
-                        "Time requested from client at time " + new Date() + '\n'
-                );
-
+                // Im copying Liams book at listing 33.4, because it fits perfectly to the task
+                // Display the client number
                 jta.append(
-                        "Time requested from client at time " + new Date() + '\n'
+                        "Starting thread for client " + clientNo + " at " + new Date() + '\n'
                 );
-                socket.close();
+
+                // Find the clients host name and IP address
+                InetAddress inetAddress = socket.getInetAddress();
+                jta.append(
+                        "Client " + clientNo + "'s host name is " + inetAddress.getHostName() + "\n"
+                );
+                jta.append(
+                        "Client " + clientNo + "'s IP Address is " + inetAddress.getHostAddress() + "\n"
+                );
+
+                // Create a new thread for the connection
+                HandleAClient task = new HandleAClient(socket);
+
+                // Start the new thread
+                new Thread(task).start();
+
+                // Increment clientNo
+                clientNo++;
+
+
             }
         } catch (IOException e) {
             System.out.println("Dude... it blew up!!!");
             e.printStackTrace();
+        }
+    }
+
+    // Inner class
+    // Define the thread class for handling new connection
+    class HandleAClient implements Runnable {
+        private Socket socket; // A connected socket
+
+        /** Construct a thread */
+        public HandleAClient(Socket socket) {
+            this.socket = socket;
+        }
+
+        @Override /** Run a thread */
+        public void run() {
+            try {
+                // Create data input and output streams
+                DataInputStream dataInputFromClient = new DataInputStream(socket.getInputStream());
+                DataOutputStream dataOutputToClient = new DataOutputStream(socket.getOutputStream());
+
+                ObjectInputStream objectinputFromClient = new ObjectInputStream(socket.getInputStream());
+                ObjectOutputStream objectOutputToClient = new ObjectOutputStream(socket.getOutputStream());
+
+                // Continuously serve the client
+                while (true) {
+                    // Inserting the logic machinery the server has to perform on the client requests
+
+                    objectOutputToClient.writeObject("up yours " + new Date()); // Sending the date back to client
+                    System.out.println(
+                            "Time requested from client at time " + new Date() + '\n'
+                    );
+
+                    jta.append(
+                            "Time requested from client at time " + new Date() + '\n'
+                    );
+                    socket.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
